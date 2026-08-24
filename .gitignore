@@ -1,0 +1,15 @@
+# Local working records and external planning material are never tracked.
+docs/**
+!docs/**/
+!docs/**/_TEMPLATE.md
+
+*.local
+.env
+.env.*
+!.env.example
+*.key
+*.pem
+
+node_modules/
+dist/
+.DS_Store
