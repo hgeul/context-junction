@@ -63,6 +63,7 @@ pwsh -NoProfile -File tools/ai/ai.ps1 status          # 대기·완료 수, plan
 | `tests/ai-cli.tests.ps1` | CLI 통합 테스트 |
 | `harness/` | 하네스 계약, SSOT 인덱스, 커밋 규약, 검수 계약 |
 | `docs/` | 백로그, 진행기록, ADR |
+| `docs/design/` | 구현계획 원문과 실행계획 |
 | `docs/local/` | 로컬 전용 자료. Git이 무시한다 |
 
 ## 문서
@@ -75,10 +76,11 @@ pwsh -NoProfile -File tools/ai/ai.ps1 status          # 대기·완료 수, plan
 | `harness/ssot-index.md` | 도메인별 권위 원천과 검증 방법 |
 | `harness/commit-convention.md` | 커밋 메시지 규약 |
 | `docs/backlog/작업목록.md` | 결정됐지만 끝나지 않은 작업 |
+| `docs/design/context-junction_구현계획.md` | 설계 원문. 역할 분리와 프로토콜 규격 |
 | `docs/progress/` | 작업별 진행기록 |
 | `docs/decisions/` | ADR. 저장소 결정의 유일한 위치이며 템플릿은 `_TEMPLATE.md` |
 
-구현계획 원문은 저장소 밖 `../docs/context-junction_구현계획.md`에 두며 Git에 추가하지 않는다.
+구현계획 원문과 v0.1 실행계획은 `docs/design/`에 있다. 구현계획은 `harness/ssot-index.md`가 지정한 권위 원천이다.
 
 ## 검증
 

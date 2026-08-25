@@ -2,7 +2,7 @@
 
 ## 권위 순서
 
-1. 저장소 밖의 `../docs/context-junction_구현계획.md` (로컬 구현계획 원문)
+1. `docs/design/context-junction_구현계획.md` (구현계획 원문)
 2. `harness/ssot-index.md`에 등록된 구현·외부 계약 진실 기준
 3. `docs/backlog/`, `docs/progress/`, `docs/decisions/`의 로컬 운영 기록
 
