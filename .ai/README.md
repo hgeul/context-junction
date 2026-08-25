@@ -14,22 +14,19 @@ Research is not an implementation instruction. Repository state remains authorit
 
 ## Invocation
 
-Use the templates directly until the v0.1 PowerShell CLI is added:
+Use the v0.1 PowerShell CLI from the repository root:
 
 ```powershell
-Copy-Item .ai/templates/research-request.md .ai/research/requests/RES-YYYYMMDD-NNN-short-topic.md
-Copy-Item .ai/templates/research-result.md .ai/research/results/RES-YYYYMMDD-NNN-short-topic.md
-Copy-Item .ai/templates/implementation-plan.md .ai/plans/PLAN-YYYYMMDD-NNN-short-topic.md
-Copy-Item .ai/templates/adr.md .ai/decisions/ADR-NNN-short-title.md
-```
-
-Planned v0.1 commands are:
-
-```powershell
-ai status
-ai research new "Topic"
-ai research list
-ai research copy [RES-YYYYMMDD-NNN]
+pwsh -NoProfile -File tools/ai/ai.ps1 status
+pwsh -NoProfile -File tools/ai/ai.ps1 research new "Topic"
+pwsh -NoProfile -File tools/ai/ai.ps1 research list
+pwsh -NoProfile -File tools/ai/ai.ps1 research copy [RES-YYYYMMDD-NNN]
 ```
 
 Requests and matching results use the same `RES-YYYYMMDD-NNN` ID. `WAITING` means a request has no matching result; `DONE` means it does. Plans have no status schema in v0.1 and are counted in total only.
+
+`status` prints the repository, branch, pending and done research counts, plan and decision totals, and the newest waiting request when one exists. Pending and done are derived only from matching request/result filenames; plans and ADRs are counted as Markdown files without a status interpretation.
+
+`research copy` copies the exact request text for a supplied `RES-YYYYMMDD-NNN` ID. Without an ID, it copies the newest `WAITING` request. The command fails when the ID is malformed or absent, no waiting request exists, or the system clipboard is unavailable.
+
+The optional global `ai` alias is user-managed; the repository only provides `tools/ai/ai.ps1`.

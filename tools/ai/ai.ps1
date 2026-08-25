@@ -177,6 +177,102 @@ function Get-ResearchList {
     }
 }
 
+function Get-ResearchRequests {
+    param([string] $GitRoot)
+
+    $requestsPath = Get-AiPath -GitRoot $GitRoot -Parts @('research', 'requests')
+    if (-not (Test-Path -LiteralPath $requestsPath -PathType Container)) {
+        return @()
+    }
+
+    return @(Get-ChildItem -LiteralPath $requestsPath -File | Where-Object {
+        $_.Name -match '^(?<id>RES-\d{8}-\d{3})-.+\.md$' -and (Test-ResearchId $Matches.id)
+    } | Sort-Object Name)
+}
+
+function Get-ResearchResultIds {
+    param([string] $GitRoot)
+
+    $resultIds = @{}
+    $resultsPath = Get-AiPath -GitRoot $GitRoot -Parts @('research', 'results')
+    if (Test-Path -LiteralPath $resultsPath -PathType Container) {
+        foreach ($result in Get-ChildItem -LiteralPath $resultsPath -File) {
+            if ($result.Name -match '^(?<id>RES-\d{8}-\d{3})-.+\.md$' -and (Test-ResearchId $Matches.id)) {
+                $resultIds[$Matches.id] = $true
+            }
+        }
+    }
+
+    return $resultIds
+}
+
+function Get-MarkdownFileCount {
+    param([string] $Path)
+
+    if (-not (Test-Path -LiteralPath $Path -PathType Container)) {
+        return 0
+    }
+
+    return @(Get-ChildItem -LiteralPath $Path -File -Filter '*.md').Count
+}
+
+function Show-Status {
+    param([string] $GitRoot)
+
+    $requests = Get-ResearchRequests -GitRoot $GitRoot
+    $resultIds = Get-ResearchResultIds -GitRoot $GitRoot
+    $waiting = @($requests | Where-Object {
+        $_.Name -match '^(?<id>RES-\d{8}-\d{3})-' -and -not $resultIds.ContainsKey($Matches.id)
+    })
+    $done = $requests.Count - $waiting.Count
+    $branch = (& git -C $GitRoot branch --show-current 2>$null | Select-Object -First 1).Trim()
+
+    Write-Output "Repository: $(Split-Path -Leaf $GitRoot)"
+    Write-Output "Branch: $branch"
+    Write-Output "Research Pending: $($waiting.Count)"
+    Write-Output "Research Done: $done"
+    Write-Output "Plans Total: $(Get-MarkdownFileCount (Get-AiPath -GitRoot $GitRoot -Parts @('plans')))"
+    Write-Output "Decisions Total: $(Get-MarkdownFileCount (Get-AiPath -GitRoot $GitRoot -Parts @('decisions')))"
+    if ($waiting.Count -gt 0) {
+        $latest = $waiting[-1]
+        $latestId = [regex]::Match($latest.Name, '^RES-\d{8}-\d{3}').Value
+        Write-Output "Latest Waiting: $latestId $(Get-ResearchTopic $latest.FullName)"
+    }
+}
+
+function Copy-ResearchRequest {
+    param(
+        [string] $GitRoot,
+        [string] $Id
+    )
+
+    $requests = Get-ResearchRequests -GitRoot $GitRoot
+    if ([string]::IsNullOrWhiteSpace($Id)) {
+        $resultIds = Get-ResearchResultIds -GitRoot $GitRoot
+        $request = @($requests | Where-Object {
+            $_.Name -match '^(?<id>RES-\d{8}-\d{3})-' -and -not $resultIds.ContainsKey($Matches.id)
+        } | Select-Object -Last 1)
+        if ($request.Count -eq 0) {
+            Write-CliError 'no waiting research request exists.'
+        }
+    }
+    else {
+        if (-not (Test-ResearchId $Id)) {
+            Write-CliError 'research copy requires a RES-YYYYMMDD-NNN ID.'
+        }
+
+        $request = @($requests | Where-Object { $_.Name -match "^$([regex]::Escape($Id))-" } | Select-Object -First 1)
+        if ($request.Count -eq 0) {
+            Write-CliError "request '$Id' was not found."
+        }
+    }
+
+    $requestText = Get-Content -LiteralPath $request[0].FullName -Raw
+    Set-Clipboard -Value $requestText
+    $requestId = [regex]::Match($request[0].Name, '^RES-\d{8}-\d{3}').Value
+    Write-Output "Copied $requestId."
+}
+
 $gitRoot = Get-GitRoot -StartDirectory (Get-Location).Path
 if ($args.Count -eq 0) {
     Write-CliError 'expected status or research command.'
@@ -205,10 +301,26 @@ switch ($args[0]) {
                 Get-ResearchList -GitRoot $gitRoot
                 break
             }
-            default { Write-CliError 'expected research new or research list.' }
+            'copy' {
+                if ($args.Count -gt 3) {
+                    Write-CliError 'usage: ai research copy [RES-YYYYMMDD-NNN]'
+                }
+
+                $id = if ($args.Count -eq 3) { $args[2] } else { $null }
+                Copy-ResearchRequest -GitRoot $gitRoot -Id $id
+                break
+            }
+            default { Write-CliError 'expected research new, research list, or research copy.' }
         }
         break
     }
-    'status' { Write-CliError 'status is not available yet.' }
+    'status' {
+        if ($args.Count -ne 1) {
+            Write-CliError 'usage: ai status'
+        }
+
+        Show-Status -GitRoot $gitRoot
+        break
+    }
     default { Write-CliError 'expected status or research command.' }
 }

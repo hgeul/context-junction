@@ -17,6 +17,8 @@ Repository context and current external knowledge require different sources of t
 - Created tracked `.ai/` context, request/result, plan, decision, and template locations.
 - Added matching External Knowledge Policy text to `AGENTS.md` and `CLAUDE.md`.
 - Registered the handoff protocol and its future CLI verification target in the SSOT index.
+- Added the v0.1 PowerShell CLI status and research copy commands with file-derived research state and total-only plan/ADR counts.
+- Added isolated integration coverage, including an in-process `Set-Clipboard` shim so tests never access the real clipboard.
 
 ## 결정
 
@@ -25,16 +27,17 @@ Research is `WAITING` or `DONE` solely from matching request/result IDs. Plans a
 ## 결과 및 검증
 
 - Baseline: `pwsh -NoProfile -File .codex/scripts/test-anchors.ps1 -Strict` passed before protocol records existed (`anchors_checked=0 drift=0`).
-- Planned final verification: strict anchor check and Git ignore checks for `.ai/local/example.txt` and `.ai/README.md`.
+- `pwsh -NoProfile -File tests/ai-cli.tests.ps1` passed with 30 assertions after adding status, copy, and failure-path coverage.
+- `pwsh -NoProfile -File tools/ai/ai.ps1 status` and `pwsh -NoProfile -File .codex/scripts/test-anchors.ps1 -Strict` are the repository smoke and anchor checks for the completed CLI.
 
 ## 미완료 및 위험
 
-- The PowerShell `ai` CLI is the next implementation task.
+- The optional global `ai` alias is user-managed; this repository provides only `tools/ai/ai.ps1`.
 - Template usability and the minimal-context rule need dogfooding with real research handoffs.
 
 ## 다음 작업
 
-Implement and dogfood the v0.1 PowerShell CLI, then evaluate five to ten handoffs before expanding automation.
+Dogfood five to ten v0.1 research handoffs, then evaluate whether additional automation is justified.
 
 ## 관련 문서
 
