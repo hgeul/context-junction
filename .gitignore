@@ -13,8 +13,3 @@ docs/**
 node_modules/
 dist/
 .DS_Store
-
-.worktrees/
-
-# Local-only AI handoff material may contain sensitive context and is never shared.
-.ai/local/
