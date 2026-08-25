@@ -1,25 +1,25 @@
-# Research Request
+# 조사 요청
 
 ## ID
 
 RES-YYYYMMDD-NNN
 
-## Topic
+## 주제
 
-## Goal
+## 목표
 
-## Project Context
+## 프로젝트 맥락
 
-## Current Implementation
+## 현재 구현
 
-### Related Files
+### 관련 파일
 
-### Current Behavior
+### 현재 동작
 
-## Questions
+## 질문
 
-## Source Requirements
+## 출처 요건
 
-## Version / Date Requirements
+## 버전·날짜 요건
 
-## Expected Output
+## 기대 산출물

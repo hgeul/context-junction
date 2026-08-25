@@ -15,7 +15,7 @@
 | 도메인 | 권위 원천 | 진실 기준 | 대조 대상 | 검증 방법 |
 |---|---|---|---|---|
 | AI Dev Router 역할 분리 | `../docs/context-junction_구현계획.md` | 코드와 공식 외부 스펙 | 구현, Research handoff 문서 | 관련 테스트·문서 검토 |
-| AI handoff protocol | `.ai/README.md`, `.ai/context/project.md`, `.ai/templates/` | tracked `.ai/` records and templates | Research request/result, implementation plan, ADR | `.codex/scripts/test-anchors.ps1 -Strict`; PowerShell CLI integration tests |
+| AI 인수인계 프로토콜 | `.ai/README.md`, `.ai/context/project.md`, `.ai/templates/` | Git으로 추적하는 `.ai/` 기록과 템플릿 | Research request/result, 구현 계획, ADR | `.codex/scripts/test-anchors.ps1 -Strict`, PowerShell CLI 통합 테스트 |
 | 운영 인수인계 | 현재 정본 | 현재 정본 | 작업목록, 진행기록, ADR | 상태·다음 작업·결정 링크 대조 |
 
 ## 문서 수명주기

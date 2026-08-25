@@ -6,67 +6,67 @@
 
 공통 검수 계약은 `harness/reviews/`다. `$grill`, `$dod`, `$drift`, `$policy-audit`을 상황에 맞게 사용한다.
 
-# External Knowledge Policy
+# 외부 지식 정책
 
-Repository knowledge and external knowledge must be handled separately.
+저장소 지식과 외부 지식은 분리해서 다룬다.
 
-Before requesting external research:
+외부 조사를 요청하기 전에:
 
-1. Inspect the repository.
-2. Determine whether the required information already exists locally.
-3. Identify the minimum external questions that block implementation.
+1. 저장소를 먼저 확인한다.
+2. 필요한 정보가 이미 로컬에 있는지 판단한다.
+3. 구현을 막고 있는 최소한의 외부 질문만 추린다.
 
-External research should be requested when the task depends on current or authoritative information such as:
+다음처럼 최신성이나 권위 있는 출처가 필요한 작업일 때 외부 조사를 요청한다.
 
-- latest framework documentation
-- library version behavior
-- deprecated API verification
-- official API specifications
-- RFC / protocol behavior
-- security recommendations
-- cloud provider behavior
-- recent breaking changes
-- technology comparison
-- current best practices
+- 최신 프레임워크 문서
+- 라이브러리 버전별 동작
+- 폐기된 API 확인
+- 공식 API 스펙
+- RFC·프로토콜 동작
+- 보안 권고
+- 클라우드 제공자 동작
+- 최근 breaking change
+- 기술 비교
+- 현재 기준의 모범 사례
 
-Do NOT request external research for information that can be determined from:
+다음에서 확인할 수 있는 정보는 외부 조사를 요청하지 않는다.
 
-- repository source code
-- local documentation
-- configuration files
-- existing tests
-- lock files
-- build files
-- project history available locally
+- 저장소 소스 코드
+- 로컬 문서
+- 설정 파일
+- 기존 테스트
+- lock 파일
+- 빌드 파일
+- 로컬에 남아 있는 프로젝트 이력
 
-When external research is required:
+외부 조사가 필요할 때:
 
-1. Inspect all relevant repository files first.
-2. Create a Research Request under:
+1. 관련 저장소 파일을 먼저 전부 확인한다.
+2. 다음 위치에 Research Request를 만든다.
 
    `.ai/research/requests/`
 
-3. Include:
-   - project context
-   - current implementation
-   - related files
-   - exact questions
-   - version requirements
+3. 다음을 포함한다.
+   - 프로젝트 맥락
+   - 현재 구현
+   - 관련 파일
+   - 정확한 질문
+   - 버전 요건
 
-4. Continue any work that does not depend on the research result.
+4. 조사 결과에 의존하지 않는 작업은 계속 진행한다.
 
-5. When a matching Research Result exists:
+5. 대응하는 Research Result가 다음 위치에 있으면
 
    `.ai/research/results/`
 
-   re-check the actual repository before creating an implementation plan.
+   구현 계획을 세우기 전에 실제 저장소를 다시 확인한다.
 
-6. Never treat Research Result as an implementation instruction.
+6. Research Result를 구현 지시로 취급하지 않는다.
 
-7. Repository state is the source of truth for implementation details.
+7. 구현 세부의 진실 기준은 저장소 상태다.
 
-8. If Research Result conflicts with the current repository:
-   - report the conflict
-   - explain the impact
-   - propose alternatives
-   - do not silently apply assumptions
+8. Research Result가 현재 저장소와 충돌하면:
+   - 충돌을 보고한다
+   - 영향을 설명한다
+   - 대안을 제시한다
+   - 가정을 조용히 적용하지 않는다

@@ -1,24 +1,24 @@
-# Project Context
+# 프로젝트 컨텍스트
 
-## Purpose
+## 목적
 
-Context Junction is establishing a file-based, agent-neutral handoff protocol for external research and repository implementation work.
+Context Junction은 외부 조사와 저장소 구현 작업 사이를 잇는, 파일 기반이면서 특정 Agent에 종속되지 않는 인수인계 프로토콜을 만든다.
 
-## Current Scope
+## 현재 범위
 
-- v0.1 validates the `.ai/` protocol before automation.
-- PowerShell 7 on Windows is the first CLI target.
-- MCP, API, browser automation, and background processing are out of scope.
+- v0.1은 자동화에 앞서 `.ai/` 프로토콜 자체를 검증한다.
+- 첫 CLI 대상은 Windows의 PowerShell 7이다.
+- MCP, API, 브라우저 자동화, 백그라운드 처리는 범위 밖이다.
 
-## Repository Conventions
+## 저장소 규약
 
-- Read `AGENTS.md`, the harness context, SSOT index, latest progress record, and backlog before changing work.
-- Keep external knowledge separate from repository facts; re-check the repository before planning implementation.
-- Do not record credentials, tokens, personal data, or sensitive payloads.
+- 작업을 바꾸기 전에 `AGENTS.md`, 하네스 컨텍스트, SSOT 인덱스, 최신 진행기록, 백로그를 읽는다.
+- 외부 지식과 저장소 사실을 섞지 않는다. 구현 계획을 세우기 전에 저장소를 다시 확인한다.
+- 자격 증명, token, 개인정보, 민감 payload를 기록하지 않는다.
 
-## Mutable Notes
+## 갱신되는 메모
 
-- Primary modules:
-- Test and verification commands:
-- Deployment and environment constraints:
-- Architecture constraints:
+- 주요 모듈:
+- 테스트·검증 명령:
+- 배포·환경 제약:
+- 아키텍처 제약:

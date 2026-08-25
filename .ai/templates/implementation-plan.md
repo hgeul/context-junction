@@ -1,31 +1,31 @@
-# Implementation Plan
+# 구현 계획
 
 ## ID
 
 PLAN-YYYYMMDD-NNN
 
-## Goal
+## 목표
 
-## Related Research
+## 관련 조사
 
-## Related Decisions
+## 관련 결정
 
-## Current State
+## 현재 상태
 
-## Target State
+## 목표 상태
 
-## Affected Files
+## 영향 파일
 
-## Implementation Steps
+## 구현 단계
 
-## Migration / Compatibility
+## 마이그레이션·호환성
 
-## Test Plan
+## 테스트 계획
 
-## Verification
+## 검증
 
-## Risks
+## 위험
 
-## Rollback
+## 롤백
 
-## Done Criteria
+## 완료 기준

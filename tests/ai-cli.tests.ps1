@@ -131,7 +131,7 @@ exit $LASTEXITCODE
     Assert-True ($firstRequest -match '(?m)^RES-20260824-001\r?$') 'created request contains the generated ID'
     Assert-True ($firstRequest -match '(?m)^Spring Security OAuth2\r?$') 'created request contains the original topic'
     $normalizedFirstRequest = $firstRequest.Replace("`r`n", "`n")
-    Assert-True ($normalizedFirstRequest.Contains("## Topic`nSpring Security OAuth2`n`n## Goal`n")) 'created request preserves the blank line between Topic and Goal'
+    Assert-True ($normalizedFirstRequest.Contains("## 주제`nSpring Security OAuth2`n`n## 목표`n")) 'created request preserves the blank line between Topic and Goal'
 
     $waitingList = Invoke-Ai -Repository $testRoot -Arguments @('research', 'list')
     Assert-True ($waitingList.ExitCode -eq 0) 'research list exits successfully while a request waits'
@@ -192,7 +192,7 @@ exit $LASTEXITCODE
     Assert-True ($koreanNew.ExitCode -eq 0) 'research new accepts a non-ASCII-only topic'
     Assert-True ($koreanNew.Output -eq $koreanRelativePath) 'non-ASCII-only topic uses the research fallback slug'
     $koreanRequest = (Get-Content -LiteralPath (Join-Path $testRoot $koreanRelativePath) -Raw).Replace("`r`n", "`n")
-    Assert-True ($koreanRequest.Contains("## Topic`n$koreanTopic`n`n## Goal`n")) 'non-ASCII-only topic is preserved in the Topic field'
+    Assert-True ($koreanRequest.Contains("## 주제`n$koreanTopic`n`n## 목표`n")) 'non-ASCII-only topic is preserved in the Topic field'
 
     $punctuationTopic = '?! — ...'
     $punctuationNew = Invoke-Ai -Repository $testRoot -Arguments @('research', 'new', $punctuationTopic)
@@ -200,7 +200,7 @@ exit $LASTEXITCODE
     Assert-True ($punctuationNew.ExitCode -eq 0) 'research new accepts a punctuation-only topic'
     Assert-True ($punctuationNew.Output -eq $punctuationRelativePath) 'punctuation-only topic uses the research fallback slug'
     $punctuationRequest = (Get-Content -LiteralPath (Join-Path $testRoot $punctuationRelativePath) -Raw).Replace("`r`n", "`n")
-    Assert-True ($punctuationRequest.Contains("## Topic`n$punctuationTopic`n`n## Goal`n")) 'punctuation-only topic is preserved in the Topic field'
+    Assert-True ($punctuationRequest.Contains("## 주제`n$punctuationTopic`n`n## 목표`n")) 'punctuation-only topic is preserved in the Topic field'
 
     Set-Content -LiteralPath (Join-Path $resultDirectory 'RES-20260824-999-orphan.md') -Value '# Orphan Research Result' -NoNewline -Encoding utf8
     $afterOrphanResult = Invoke-Ai -Repository $testRoot -Arguments @('research', 'new', 'Request IDs Ignore Results')

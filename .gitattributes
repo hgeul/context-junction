@@ -1,4 +1,4 @@
-# Keep repository artifacts stable across Windows checkouts.
+# Windows 체크아웃에서도 저장소 산출물이 동일하게 유지되도록 한다.
 *.sh text eol=lf
 *.md text eol=lf
 *.ps1 text eol=crlf

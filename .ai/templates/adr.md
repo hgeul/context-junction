@@ -1,23 +1,23 @@
-# ADR-NNN: Decision Title
+# ADR-NNN: 결정 제목
 
-## Status
+## 상태
 
-Proposed | Accepted | Deprecated | Superseded
+제안 | 채택 | 폐기 | 대체됨
 
-## Date
+## 날짜
 
 YYYY-MM-DD
 
-## Context
+## 맥락
 
-## Decision
+## 결정
 
-## Alternatives
+## 대안
 
-## Rationale
+## 근거
 
-## Consequences
+## 영향
 
-## Related Research
+## 관련 조사
 
-## Revisit When
+## 재검토 조건

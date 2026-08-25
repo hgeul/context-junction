@@ -88,9 +88,9 @@ function Get-ResearchTopic {
     param([string] $RequestPath)
 
     $content = Get-Content -LiteralPath $RequestPath -Raw
-    $topicMatch = [regex]::Match($content, '(?ms)^## Topic\r?\n(?<topic>.*?)\r?\n\r?\n## ')
+    $topicMatch = [regex]::Match($content, '(?ms)^## 주제\r?\n(?<topic>.*?)\r?\n\r?\n## ')
     if (-not $topicMatch.Success) {
-        Write-CliError "request '$($RequestPath | Split-Path -Leaf)' does not contain a valid Topic section."
+        Write-CliError "request '$($RequestPath | Split-Path -Leaf)' does not contain a valid topic section."
     }
 
     return $topicMatch.Groups['topic'].Value.Trim()
@@ -123,12 +123,12 @@ function New-ResearchRequest {
     $slug = ConvertTo-TopicSlug $Topic
     $template = Get-Content -LiteralPath $templatePath -Raw
     $newLine = if ($template.Contains("`r`n")) { "`r`n" } else { "`n" }
-    $topicPlaceholder = "## Topic${newLine}${newLine}"
+    $topicPlaceholder = "## 주제${newLine}${newLine}"
     if (-not $template.Contains('RES-YYYYMMDD-NNN') -or -not $template.Contains($topicPlaceholder)) {
         Write-CliError 'research request template has required placeholders missing.'
     }
 
-    $document = $template.Replace('RES-YYYYMMDD-NNN', $id).Replace($topicPlaceholder, "## Topic${newLine}$Topic${newLine}${newLine}")
+    $document = $template.Replace('RES-YYYYMMDD-NNN', $id).Replace($topicPlaceholder, "## 주제${newLine}$Topic${newLine}${newLine}")
     try {
         New-Item -ItemType Directory -Path @($requestsPath, $resultsPath) -Force | Out-Null
     }

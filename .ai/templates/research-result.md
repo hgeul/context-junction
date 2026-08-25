@@ -1,27 +1,27 @@
-# Research Result
+# 조사 결과
 
-## Request
+## 요청
 
 RES-YYYYMMDD-NNN
 
-## Researched At
+## 조사일
 
 YYYY-MM-DD
 
-## Conclusion
+## 결론
 
-## Recommended Approach
+## 권장 방식
 
-## Project Impact
+## 프로젝트 영향
 
-## Deprecated / Changed APIs
+## 폐기·변경된 API
 
-## Risks
+## 위험
 
-## Alternatives
+## 대안
 
-## Recommendation
+## 권고
 
-## Open Questions
+## 남은 질문
 
-## Sources
+## 출처

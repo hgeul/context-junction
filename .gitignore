@@ -1,4 +1,4 @@
-# Local working records and external planning material are never tracked.
+# 로컬 작업 기록과 저장소 밖 기획 자료는 추적하지 않는다.
 docs/**
 !docs/**/
 !docs/**/_TEMPLATE.md
@@ -16,5 +16,5 @@ dist/
 
 .worktrees/
 
-# Local-only AI handoff material may contain sensitive context and is never shared.
+# 로컬 전용 AI 인수인계 자료는 민감한 맥락을 담을 수 있어 공유하지 않는다.
 .ai/local/

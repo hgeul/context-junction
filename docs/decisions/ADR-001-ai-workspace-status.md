@@ -1,51 +1,51 @@
-# ADR-001: AI Workspace Status Derivation
+# ADR-001: AI 작업공간 상태 판정 방식
 
-## Status
+## 상태
 
-Accepted
+채택
 
-## Date
+## 날짜
 
 2026-08-24
 
-## Context
+## 맥락
 
-The v0.1 workspace needs useful status output before plan and ADR metadata schemas exist.
+v0.1 작업공간에는 plan과 ADR의 메타데이터 스키마가 아직 없다. 그 전에도 쓸모 있는 status 출력이 필요하다.
 
-## Decision
+## 결정
 
-Derive research status only from matching request and result IDs: a request without a result is `WAITING`; a request with a result is `DONE`. Count plans as a total until a plan status schema exists.
+조사 상태는 요청과 결과의 ID가 짝을 이루는지로만 판정한다. 결과가 없는 요청은 `WAITING`, 결과가 있는 요청은 `DONE`이다. plan은 상태 스키마가 생길 때까지 전체 개수만 센다.
 
-## Alternatives
+## 대안
 
-### Add draft and active status fields now
+### 지금 draft·active 상태 필드를 추가한다
 
-This adds a schema and lifecycle that v0.1 has not validated.
+v0.1이 아직 검증하지 않은 스키마와 수명주기를 먼저 만드는 셈이다.
 
-### Infer plan status from filenames or document text
+### 파일명이나 문서 본문에서 plan 상태를 추론한다
 
-This would be unreliable and create undocumented conventions.
+신뢰할 수 없고, 문서화되지 않은 규약을 만든다.
 
-## Rationale
+## 근거
 
-Matching IDs provide an objective, file-based research state, while total plan count avoids claiming precision the protocol does not yet support.
+ID 짝맞춤은 파일만 보고 객관적으로 판정할 수 있는 조사 상태다. plan을 총 개수로만 세면 프로토콜이 아직 뒷받침하지 못하는 정밀도를 주장하지 않게 된다.
 
-## Consequences
+## 영향
 
-### Positive
+### 긍정
 
-- The first CLI can report stable research counts without parsing free-form content.
-- The protocol remains minimal for dogfooding.
+- 첫 CLI가 자유 형식 본문을 파싱하지 않고도 안정적인 조사 개수를 보고한다.
+- 프로토콜이 dogfooding 하기에 충분히 작게 유지된다.
 
-### Negative
+### 부정
 
-- Plan lifecycle progress is not visible in v0.1 status output.
+- v0.1 status 출력에서는 plan의 수명주기 진행을 볼 수 없다.
 
-## Related Research
+## 관련 조사
 
-- None; this is a repository protocol decision.
+- 없음. 저장소 프로토콜에 대한 결정이다.
 
-## Revisit When
+## 재검토 조건
 
-- Dogfooding establishes a stable plan status schema.
-- CLI consumers need plan lifecycle counts.
+- dogfooding으로 plan 상태 스키마가 자리 잡을 때.
+- CLI 사용자가 plan 수명주기 개수를 필요로 할 때.
