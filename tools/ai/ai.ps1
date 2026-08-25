@@ -1,0 +1,214 @@
+$ErrorActionPreference = 'Stop'
+
+function Write-CliError {
+    param([string] $Message)
+
+    [Console]::Error.WriteLine("ai: $Message")
+    exit 1
+}
+
+function Get-GitRoot {
+    param([string] $StartDirectory)
+
+    $root = & git -C $StartDirectory rev-parse --show-toplevel 2>$null
+    if ($LASTEXITCODE -ne 0 -or [string]::IsNullOrWhiteSpace(($root | Out-String))) {
+        Write-CliError 'run this command from inside a Git repository.'
+    }
+
+    return ($root | Select-Object -First 1).Trim()
+}
+
+function Get-AiPath {
+    param(
+        [string] $GitRoot,
+        [string[]] $Parts
+    )
+
+    return Join-Path $GitRoot (Join-Path '.ai' ($Parts -join [System.IO.Path]::DirectorySeparatorChar))
+}
+
+function Test-ResearchId {
+    param([string] $Id)
+
+    return $Id -match '^RES-\d{8}-\d{3}$'
+}
+
+function Get-RequestDate {
+    if ($env:AI_TEST_DATE) {
+        if ($env:AI_TEST_DATE -notmatch '^\d{4}-\d{2}-\d{2}$') {
+            Write-CliError 'AI_TEST_DATE must use YYYY-MM-DD.'
+        }
+
+        try {
+            return [datetime]::ParseExact($env:AI_TEST_DATE, 'yyyy-MM-dd', [Globalization.CultureInfo]::InvariantCulture).ToString('yyyyMMdd')
+        }
+        catch {
+            Write-CliError 'AI_TEST_DATE must be a valid calendar date.'
+        }
+    }
+
+    return (Get-Date).ToString('yyyyMMdd')
+}
+
+function ConvertTo-TopicSlug {
+    param([string] $Topic)
+
+    $slug = [regex]::Replace($Topic.Trim().ToLowerInvariant(), '[^a-z0-9]+', '-')
+    $slug = $slug.Trim('-')
+    if ([string]::IsNullOrWhiteSpace($slug)) {
+        Write-CliError 'topic must contain at least one letter or number.'
+    }
+
+    return $slug
+}
+
+function Get-NextResearchSequence {
+    param(
+        [string] $RequestsPath,
+        [string] $ResultsPath,
+        [string] $Date
+    )
+
+    $maximum = 0
+    foreach ($directory in @($RequestsPath, $ResultsPath)) {
+        if (-not (Test-Path -LiteralPath $directory -PathType Container)) {
+            continue
+        }
+
+        foreach ($file in Get-ChildItem -LiteralPath $directory -File) {
+            if ($file.Name -match "^RES-$Date-(?<sequence>\d{3})-.+\.md$") {
+                $maximum = [math]::Max($maximum, [int]$Matches.sequence)
+            }
+        }
+    }
+
+    if ($maximum -ge 999) {
+        Write-CliError "no request ID remains for $Date."
+    }
+
+    return $maximum + 1
+}
+
+function Get-ResearchTopic {
+    param([string] $RequestPath)
+
+    $content = Get-Content -LiteralPath $RequestPath -Raw
+    $topicMatch = [regex]::Match($content, '(?ms)^## Topic\r?\n(?<topic>.*?)\r?\n\r?\n## ')
+    if (-not $topicMatch.Success) {
+        Write-CliError "request '$($RequestPath | Split-Path -Leaf)' does not contain a valid Topic section."
+    }
+
+    return $topicMatch.Groups['topic'].Value.Trim()
+}
+
+function New-ResearchRequest {
+    param(
+        [string] $GitRoot,
+        [string] $Topic
+    )
+
+    if ([string]::IsNullOrWhiteSpace($Topic)) {
+        Write-CliError 'research new requires a topic.'
+    }
+
+    $requestsPath = Get-AiPath -GitRoot $GitRoot -Parts @('research', 'requests')
+    $resultsPath = Get-AiPath -GitRoot $GitRoot -Parts @('research', 'results')
+    $templatePath = Get-AiPath -GitRoot $GitRoot -Parts @('templates', 'research-request.md')
+    if (-not (Test-Path -LiteralPath $templatePath -PathType Leaf)) {
+        Write-CliError 'research request template is missing.'
+    }
+
+    $date = Get-RequestDate
+    $sequence = Get-NextResearchSequence -RequestsPath $requestsPath -ResultsPath $resultsPath -Date $date
+    $id = 'RES-{0}-{1:D3}' -f $date, $sequence
+    if (-not (Test-ResearchId $id)) {
+        Write-CliError 'generated an invalid research ID.'
+    }
+
+    $slug = ConvertTo-TopicSlug $Topic
+    $template = Get-Content -LiteralPath $templatePath -Raw
+    $newLine = if ($template.Contains("`r`n")) { "`r`n" } else { "`n" }
+    $topicPlaceholder = "## Topic${newLine}${newLine}"
+    if (-not $template.Contains('RES-YYYYMMDD-NNN') -or -not $template.Contains($topicPlaceholder)) {
+        Write-CliError 'research request template has required placeholders missing.'
+    }
+
+    $document = $template.Replace('RES-YYYYMMDD-NNN', $id).Replace($topicPlaceholder, "## Topic${newLine}$Topic${newLine}")
+    New-Item -ItemType Directory -Path $requestsPath -Force | Out-Null
+    $requestName = "$id-$slug.md"
+    $requestPath = Join-Path $requestsPath $requestName
+    if (Test-Path -LiteralPath $requestPath) {
+        Write-CliError "request '$requestName' already exists."
+    }
+
+    Set-Content -LiteralPath $requestPath -Value $document -NoNewline -Encoding utf8
+    Write-Output (Join-Path '.ai/research/requests' $requestName).Replace('\', '/')
+}
+
+function Get-ResearchList {
+    param([string] $GitRoot)
+
+    $requestsPath = Get-AiPath -GitRoot $GitRoot -Parts @('research', 'requests')
+    $resultsPath = Get-AiPath -GitRoot $GitRoot -Parts @('research', 'results')
+    $resultIds = @{}
+    if (Test-Path -LiteralPath $resultsPath -PathType Container) {
+        foreach ($result in Get-ChildItem -LiteralPath $resultsPath -File) {
+            if ($result.Name -match '^(?<id>RES-\d{8}-\d{3})-.+\.md$' -and (Test-ResearchId $Matches.id)) {
+                $resultIds[$Matches.id] = $true
+            }
+        }
+    }
+
+    Write-Output 'ID                 STATUS   TOPIC'
+    Write-Output '---------------------------------------------'
+    if (-not (Test-Path -LiteralPath $requestsPath -PathType Container)) {
+        return
+    }
+
+    foreach ($request in Get-ChildItem -LiteralPath $requestsPath -File | Sort-Object Name) {
+        if ($request.Name -notmatch '^(?<id>RES-\d{8}-\d{3})-.+\.md$' -or -not (Test-ResearchId $Matches.id)) {
+            continue
+        }
+
+        $id = $Matches.id
+        $status = if ($resultIds.ContainsKey($id)) { 'DONE' } else { 'WAITING' }
+        $topic = Get-ResearchTopic $request.FullName
+        Write-Output ('{0,-18} {1,-8} {2}' -f $id, $status, $topic)
+    }
+}
+
+$gitRoot = Get-GitRoot -StartDirectory (Get-Location).Path
+if ($args.Count -eq 0) {
+    Write-CliError 'expected status or research command.'
+}
+
+switch ($args[0]) {
+    'research' {
+        if ($args.Count -lt 2) {
+            Write-CliError 'expected research new or research list.'
+        }
+
+        switch ($args[1]) {
+            'new' {
+                if ($args.Count -ne 3) {
+                    Write-CliError 'usage: ai research new <topic>'
+                }
+
+                New-ResearchRequest -GitRoot $gitRoot -Topic $args[2]
+                break
+            }
+            'list' {
+                if ($args.Count -ne 2) {
+                    Write-CliError 'usage: ai research list'
+                }
+
+                Get-ResearchList -GitRoot $gitRoot
+                break
+            }
+            default { Write-CliError 'expected research new or research list.' }
+        }
+        break
+    }
+    'status' { Write-CliError 'status is not available yet.' }
+    default { Write-CliError 'expected status or research command.' }
+}
