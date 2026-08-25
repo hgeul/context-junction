@@ -56,7 +56,7 @@ function ConvertTo-TopicSlug {
     $slug = [regex]::Replace($Topic.Trim().ToLowerInvariant(), '[^a-z0-9]+', '-')
     $slug = $slug.Trim('-')
     if ([string]::IsNullOrWhiteSpace($slug)) {
-        Write-CliError 'topic must contain at least one letter or number.'
+        return 'research'
     }
 
     return $slug
@@ -65,17 +65,12 @@ function ConvertTo-TopicSlug {
 function Get-NextResearchSequence {
     param(
         [string] $RequestsPath,
-        [string] $ResultsPath,
         [string] $Date
     )
 
     $maximum = 0
-    foreach ($directory in @($RequestsPath, $ResultsPath)) {
-        if (-not (Test-Path -LiteralPath $directory -PathType Container)) {
-            continue
-        }
-
-        foreach ($file in Get-ChildItem -LiteralPath $directory -File) {
+    if (Test-Path -LiteralPath $RequestsPath -PathType Container) {
+        foreach ($file in Get-ChildItem -LiteralPath $RequestsPath -File) {
             if ($file.Name -match "^RES-$Date-(?<sequence>\d{3})-.+\.md$") {
                 $maximum = [math]::Max($maximum, [int]$Matches.sequence)
             }
@@ -119,7 +114,7 @@ function New-ResearchRequest {
     }
 
     $date = Get-RequestDate
-    $sequence = Get-NextResearchSequence -RequestsPath $requestsPath -ResultsPath $resultsPath -Date $date
+    $sequence = Get-NextResearchSequence -RequestsPath $requestsPath -Date $date
     $id = 'RES-{0}-{1:D3}' -f $date, $sequence
     if (-not (Test-ResearchId $id)) {
         Write-CliError 'generated an invalid research ID.'
@@ -133,15 +128,25 @@ function New-ResearchRequest {
         Write-CliError 'research request template has required placeholders missing.'
     }
 
-    $document = $template.Replace('RES-YYYYMMDD-NNN', $id).Replace($topicPlaceholder, "## Topic${newLine}$Topic${newLine}")
-    New-Item -ItemType Directory -Path $requestsPath -Force | Out-Null
+    $document = $template.Replace('RES-YYYYMMDD-NNN', $id).Replace($topicPlaceholder, "## Topic${newLine}$Topic${newLine}${newLine}")
+    try {
+        New-Item -ItemType Directory -Path @($requestsPath, $resultsPath) -Force | Out-Null
+    }
+    catch {
+        Write-CliError 'could not create research request.'
+    }
     $requestName = "$id-$slug.md"
     $requestPath = Join-Path $requestsPath $requestName
     if (Test-Path -LiteralPath $requestPath) {
         Write-CliError "request '$requestName' already exists."
     }
 
-    Set-Content -LiteralPath $requestPath -Value $document -NoNewline -Encoding utf8
+    try {
+        Set-Content -LiteralPath $requestPath -Value $document -NoNewline -Encoding utf8
+    }
+    catch {
+        Write-CliError 'could not create research request.'
+    }
     Write-Output (Join-Path '.ai/research/requests' $requestName).Replace('\', '/')
 }
 
@@ -268,59 +273,69 @@ function Copy-ResearchRequest {
     }
 
     $requestText = Get-Content -LiteralPath $request[0].FullName -Raw
-    Set-Clipboard -Value $requestText
+    try {
+        Set-Clipboard -Value $requestText
+    }
+    catch {
+        Write-CliError 'clipboard is unavailable.'
+    }
     $requestId = [regex]::Match($request[0].Name, '^RES-\d{8}-\d{3}').Value
     Write-Output "Copied $requestId."
 }
 
-$gitRoot = Get-GitRoot -StartDirectory (Get-Location).Path
-if ($args.Count -eq 0) {
-    Write-CliError 'expected status or research command.'
+try {
+    $gitRoot = Get-GitRoot -StartDirectory (Get-Location).Path
+    if ($args.Count -eq 0) {
+        Write-CliError 'expected status or research command.'
+    }
+
+    switch ($args[0]) {
+        'research' {
+            if ($args.Count -lt 2) {
+                Write-CliError 'expected research new, research list, or research copy.'
+            }
+
+            switch ($args[1]) {
+                'new' {
+                    if ($args.Count -ne 3) {
+                        Write-CliError 'usage: ai research new <topic>'
+                    }
+
+                    New-ResearchRequest -GitRoot $gitRoot -Topic $args[2]
+                    break
+                }
+                'list' {
+                    if ($args.Count -ne 2) {
+                        Write-CliError 'usage: ai research list'
+                    }
+
+                    Get-ResearchList -GitRoot $gitRoot
+                    break
+                }
+                'copy' {
+                    if ($args.Count -gt 3) {
+                        Write-CliError 'usage: ai research copy [RES-YYYYMMDD-NNN]'
+                    }
+
+                    $id = if ($args.Count -eq 3) { $args[2] } else { $null }
+                    Copy-ResearchRequest -GitRoot $gitRoot -Id $id
+                    break
+                }
+                default { Write-CliError 'expected research new, research list, or research copy.' }
+            }
+            break
+        }
+        'status' {
+            if ($args.Count -ne 1) {
+                Write-CliError 'usage: ai status'
+            }
+
+            Show-Status -GitRoot $gitRoot
+            break
+        }
+        default { Write-CliError 'expected status or research command.' }
+    }
 }
-
-switch ($args[0]) {
-    'research' {
-        if ($args.Count -lt 2) {
-            Write-CliError 'expected research new or research list.'
-        }
-
-        switch ($args[1]) {
-            'new' {
-                if ($args.Count -ne 3) {
-                    Write-CliError 'usage: ai research new <topic>'
-                }
-
-                New-ResearchRequest -GitRoot $gitRoot -Topic $args[2]
-                break
-            }
-            'list' {
-                if ($args.Count -ne 2) {
-                    Write-CliError 'usage: ai research list'
-                }
-
-                Get-ResearchList -GitRoot $gitRoot
-                break
-            }
-            'copy' {
-                if ($args.Count -gt 3) {
-                    Write-CliError 'usage: ai research copy [RES-YYYYMMDD-NNN]'
-                }
-
-                $id = if ($args.Count -eq 3) { $args[2] } else { $null }
-                Copy-ResearchRequest -GitRoot $gitRoot -Id $id
-                break
-            }
-            default { Write-CliError 'expected research new, research list, or research copy.' }
-        }
-        break
-    }
-    'status' {
-        if ($args.Count -ne 1) {
-            Write-CliError 'usage: ai status'
-        }
-
-        Show-Status -GitRoot $gitRoot
-        break
-    }
-    default { Write-CliError 'expected status or research command.' }
+catch {
+    Write-CliError 'command failed.'
 }

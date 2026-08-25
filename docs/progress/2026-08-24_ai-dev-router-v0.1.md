@@ -30,12 +30,13 @@ Research is `WAITING` or `DONE` solely from matching request/result IDs. Plans a
 - `pwsh -NoProfile -File tests/ai-cli.tests.ps1` passed with 30 assertions after adding status, copy, and failure-path coverage.
 - `pwsh -NoProfile -File tools/ai/ai.ps1 status` and `pwsh -NoProfile -File .codex/scripts/test-anchors.ps1 -Strict` are the repository smoke and anchor checks for the completed CLI.
 - Final protocol review (2026-08-25): `pwsh -NoProfile -File tests/ai-cli.tests.ps1` output `PASS: 30 assertions`; `pwsh -NoProfile -File .codex/scripts/test-anchors.ps1 -Strict` output `anchors_checked=0 drift=0`; `git diff --check` had no output. Harness reviews found identical operative External Knowledge Policy text in `AGENTS.md` and `CLAUDE.md`, no sensitive-data pattern matches in `.ai/templates/`, and registered the AI handoff authority in `harness/ssot-index.md`.
+- Final contract-fix review (2026-08-25): CLI integration coverage increased to 48 assertions for Topic formatting, fallback slugs, request/result directory creation, request-only ID allocation, and concise filesystem/clipboard failures. The CLI suite, repository status smoke, strict anchor check, and `git diff --check` all passed.
 
 ## 미완료 및 위험
 
 - The optional global `ai` alias is user-managed; this repository provides only `tools/ai/ai.ps1`.
 - Template usability and the minimal-context rule need dogfooding with five to ten real Research Handoffs before any API, MCP, or automation expansion.
-- The complete branch range also adds `.worktrees/` to `.gitignore` for isolated workspaces; `.ai/local/` is the only new ignore rule for local AI handoff material.
+- Only `.ai/local/` changed in the feature range's ignore rules; the `.worktrees/` rule predated this feature range.
 
 ## 다음 작업
 

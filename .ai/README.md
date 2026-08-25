@@ -27,6 +27,6 @@ Requests and matching results use the same `RES-YYYYMMDD-NNN` ID. `WAITING` mean
 
 `status` prints the repository, branch, pending and done research counts, plan and decision totals, and the newest waiting request when one exists. Pending and done are derived only from matching request/result filenames; plans and ADRs are counted as Markdown files without a status interpretation.
 
-`research copy` copies the exact request text for a supplied `RES-YYYYMMDD-NNN` ID. Without an ID, it copies the newest `WAITING` request. The command fails when the ID is malformed or absent, no waiting request exists, or the system clipboard is unavailable.
+`research copy` copies the exact request text for a supplied `RES-YYYYMMDD-NNN` ID. Without an ID, it copies the newest `WAITING` request. The command fails when a supplied ID is malformed or has no matching request, when an omitted ID finds no waiting request, or when the system clipboard is unavailable.
 
 The optional global `ai` alias is user-managed; the repository only provides `tools/ai/ai.ps1`.
