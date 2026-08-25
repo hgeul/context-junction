@@ -39,7 +39,7 @@ pwsh -NoProfile -File tools/ai/ai.ps1 research list   # ID, WAITING 또는 DONE,
 pwsh -NoProfile -File tools/ai/ai.ps1 status          # 대기·완료 수, plan·decision 총계
 ```
 
-6. 저장소를 다시 확인한 뒤 `.ai/templates/implementation-plan.md`로 구현 계획을 쓰고, 구현하고 테스트한다. 오래 갈 선택은 ADR로 남긴다.
+6. 저장소를 다시 확인한 뒤 `.ai/templates/implementation-plan.md`로 구현 계획을 쓰고, 구현하고 테스트한다. 오래 갈 선택은 `docs/decisions/`에 ADR로 남긴다.
 
 ## 규칙
 
@@ -58,12 +58,11 @@ pwsh -NoProfile -File tools/ai/ai.ps1 status          # 대기·완료 수, plan
 | `.ai/research/requests/` | Research Request. `RES-YYYYMMDD-NNN-slug.md` |
 | `.ai/research/results/` | Research Result. 요청과 같은 ID |
 | `.ai/plans/` | 구현 계획. `PLAN-YYYYMMDD-NNN-slug.md` |
-| `.ai/decisions/` | ADR |
 | `.ai/templates/` | 위 문서들의 템플릿 |
 | `tools/ai/ai.ps1` | v0.1 PowerShell CLI |
 | `tests/ai-cli.tests.ps1` | CLI 통합 테스트 |
 | `harness/` | 하네스 계약, SSOT 인덱스, 커밋 규약, 검수 계약 |
-| `docs/` | 백로그, 진행기록, 운영 ADR |
+| `docs/` | 백로그, 진행기록, ADR |
 
 ## 문서
 
@@ -76,7 +75,7 @@ pwsh -NoProfile -File tools/ai/ai.ps1 status          # 대기·완료 수, plan
 | `harness/commit-convention.md` | 커밋 메시지 규약 |
 | `docs/backlog/작업목록.md` | 결정됐지만 끝나지 않은 작업 |
 | `docs/progress/` | 작업별 진행기록 |
-| `docs/decisions/` | 저장소 운영 ADR |
+| `docs/decisions/` | ADR. 저장소 결정의 유일한 위치이며 템플릿은 `_TEMPLATE.md` |
 
 구현계획 원문은 저장소 밖 `../docs/context-junction_구현계획.md`에 두며 Git에 추가하지 않는다.
 
@@ -93,5 +92,5 @@ pwsh -NoProfile -File tools/ai/ai.ps1 status                  # 저장소 smoke
 - 조사 상태는 요청과 결과 파일명의 ID가 짝을 이루는지로만 판정한다. 결과가 없으면 `WAITING`, 있으면 `DONE`이다. plan과 ADR은 상태를 해석하지 않고 Markdown 파일 개수만 센다. 근거는 `docs/decisions/ADR-001-ai-workspace-status.md`에 있다.
 - 결과 파일은 CLI가 만들지 않는다. `research new`는 요청 파일과 빈 결과 디렉터리까지만 만든다. 결과를 직접 저장해야 `DONE`이 된다.
 - 한글 주제는 파일명 slug가 `research`로 떨어진다. slug는 `a-z0-9`만 남기기 때문이다. 파일명으로 주제를 구분하려면 영문 주제를 쓰거나, 만든 뒤 ID 앞부분만 유지한 채 파일명을 바꾼다.
-- `status`의 `Decisions Total`은 `.ai/decisions/`만 센다. 현재 ADR-001은 `docs/decisions/`에 있어 집계되지 않는다. 두 위치의 역할 구분은 아직 정하지 않았다.
+- ADR은 `docs/decisions/` 한 곳에만 둔다. `status`의 `Decisions Total`도 그 디렉터리를 세며 `_`로 시작하는 템플릿은 제외한다. 근거는 `docs/decisions/ADR-002-adr-location.md`에 있다.
 - 전역 `ai` alias는 저장소가 제공하지 않는다. 필요하면 각자 PowerShell 프로필에 함수를 만들어 쓴다.

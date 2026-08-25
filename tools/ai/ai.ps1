@@ -218,7 +218,7 @@ function Get-MarkdownFileCount {
         return 0
     }
 
-    return @(Get-ChildItem -LiteralPath $Path -File -Filter '*.md').Count
+    return @(Get-ChildItem -LiteralPath $Path -File -Filter '*.md' | Where-Object { $_.Name -notlike '_*' }).Count
 }
 
 function Show-Status {
@@ -237,7 +237,7 @@ function Show-Status {
     Write-Output "Research Pending: $($waiting.Count)"
     Write-Output "Research Done: $done"
     Write-Output "Plans Total: $(Get-MarkdownFileCount (Get-AiPath -GitRoot $GitRoot -Parts @('plans')))"
-    Write-Output "Decisions Total: $(Get-MarkdownFileCount (Get-AiPath -GitRoot $GitRoot -Parts @('decisions')))"
+    Write-Output "Decisions Total: $(Get-MarkdownFileCount (Join-Path $GitRoot (Join-Path 'docs' 'decisions')))"
     if ($waiting.Count -gt 0) {
         $latest = $waiting[-1]
         $latestId = [regex]::Match($latest.Name, '^RES-\d{8}-\d{3}').Value

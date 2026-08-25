@@ -154,9 +154,10 @@ exit $LASTEXITCODE
     $plansDirectory = Join-Path $testRoot '.ai/plans'
     New-Item -ItemType Directory -Path $plansDirectory -Force | Out-Null
     Set-Content -LiteralPath (Join-Path $plansDirectory 'PLAN-20260824-001-oauth.md') -Value '# Plan' -NoNewline -Encoding utf8
-    $decisionsDirectory = Join-Path $testRoot '.ai/decisions'
+    $decisionsDirectory = Join-Path $testRoot 'docs/decisions'
     New-Item -ItemType Directory -Path $decisionsDirectory -Force | Out-Null
     Set-Content -LiteralPath (Join-Path $decisionsDirectory 'ADR-001-oauth.md') -Value '# Decision' -NoNewline -Encoding utf8
+    Set-Content -LiteralPath (Join-Path $decisionsDirectory '_TEMPLATE.md') -Value '# Template' -NoNewline -Encoding utf8
 
     $branch = (& git -C $testRoot branch --show-current).Trim()
     $status = Invoke-Ai -Repository $testRoot -Arguments @('status')
@@ -166,7 +167,8 @@ exit $LASTEXITCODE
     Assert-True ($status.Output -match 'Research Pending: 1') 'status counts only waiting request files as pending research'
     Assert-True ($status.Output -match 'Research Done: 1') 'status counts only request files with matching results as done research'
     Assert-True ($status.Output -match 'Plans Total: 1') 'status counts plan markdown files without a status'
-    Assert-True ($status.Output -match 'Decisions Total: 1') 'status counts ADR markdown files without a status'
+    Assert-True ($status.Output -match 'Decisions Total: 1') 'status counts docs/decisions ADR markdown files without a status'
+    Assert-True ($status.Output -notmatch 'Decisions Total: 2') 'status excludes underscore-prefixed template files from decision counts'
     Assert-True ($status.Output -match 'Latest Waiting: RES-20260824-002 Spring Security OAuth2') 'status prints the newest waiting request ID and topic'
 
     $firstRequestText = Get-Content -LiteralPath $firstRequestPath -Raw

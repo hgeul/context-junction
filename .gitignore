@@ -2,6 +2,8 @@
 docs/**
 !docs/**/
 !docs/**/_TEMPLATE.md
+# ADR은 저장소 결정의 정본이라 추적한다.
+!docs/decisions/**
 
 *.local
 .env
