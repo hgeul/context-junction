@@ -63,6 +63,7 @@ pwsh -NoProfile -File tools/ai/ai.ps1 status          # 대기·완료 수, plan
 | `tests/ai-cli.tests.ps1` | CLI 통합 테스트 |
 | `harness/` | 하네스 계약, SSOT 인덱스, 커밋 규약, 검수 계약 |
 | `docs/` | 백로그, 진행기록, ADR |
+| `docs/local/` | 로컬 전용 자료. Git이 무시한다 |
 
 ## 문서
 
@@ -93,4 +94,5 @@ pwsh -NoProfile -File tools/ai/ai.ps1 status                  # 저장소 smoke
 - 결과 파일은 CLI가 만들지 않는다. `research new`는 요청 파일과 빈 결과 디렉터리까지만 만든다. 결과를 직접 저장해야 `DONE`이 된다.
 - 한글 주제는 파일명 slug가 `research`로 떨어진다. slug는 `a-z0-9`만 남기기 때문이다. 파일명으로 주제를 구분하려면 영문 주제를 쓰거나, 만든 뒤 ID 앞부분만 유지한 채 파일명을 바꾼다.
 - ADR은 `docs/decisions/` 한 곳에만 둔다. `status`의 `Decisions Total`도 그 디렉터리를 세며 `_`로 시작하는 템플릿은 제외한다. 근거는 `docs/decisions/ADR-002-adr-location.md`에 있다.
+- `docs/` 아래 문서는 기본적으로 추적한다. 공개하면 안 되는 자료는 `docs/local/`에 둔다. 근거는 `docs/decisions/ADR-003-docs-tracking-policy.md`에 있다.
 - 전역 `ai` alias는 저장소가 제공하지 않는다. 필요하면 각자 PowerShell 프로필에 함수를 만들어 쓴다.
